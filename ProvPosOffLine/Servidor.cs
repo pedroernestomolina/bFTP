@@ -133,7 +133,7 @@ namespace ProvPosOffLine
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_kardex.txt\" FROM productos_kardex where modulo<>'Ventas' and fecha>='2020/01/01'";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_kardex.txt\" FROM productos_kardex where modulo<>'Ventas' and fecha>='2022/01/01'";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
@@ -157,11 +157,11 @@ namespace ProvPosOffLine
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos.txt\" FROM productos_movimientos where fecha>='2020/01/01' ";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos.txt\" FROM productos_movimientos where fecha>='2022/01/01' ";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where fecha>='2020/01/01' ";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where fecha>='2022/01/01' ";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
@@ -714,7 +714,7 @@ namespace ProvPosOffLine
 
                         //
 
-                        sql0 = "delete from productos_kardex where modulo <> 'Ventas'";
+                        sql0 = "delete from productos_kardex where modulo <> 'Ventas' and fecha>='2022/01/01'";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
@@ -744,12 +744,12 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_movimientos_detalle";
+                        sql0 = "delete from productos_movimientos_detalle where fecha>='2022/01/01'";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_movimientos";
+                        sql0 = "delete from productos_movimientos where fecha>='2022/01/01'";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
@@ -974,6 +974,15 @@ namespace ProvPosOffLine
                         comando1.Parameters.Clear();
                         comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
                         rt = comando1.ExecuteNonQuery();
+
+                        //
+                        sql0 = "delete from productos_kardex where modulo <> 'Ventas' and codigo_sucursal<>?codSucursal";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?codSucursal", codigoSuc);
+                        rt = comando1.ExecuteNonQuery();
+
 
                         //ESTADO NORMAL RESTRICCIONES FORANEAS
                         sql0 = "SET FOREIGN_KEY_CHECKS=1";
