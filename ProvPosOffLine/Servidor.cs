@@ -44,7 +44,7 @@ namespace ProvPosOffLine
             return result;
         }
         public DtoLib.Resultado 
-            Servidor_Principal_CrearBoletin(string pathDestino)
+            Servidor_Principal_CrearBoletin(string pathDestino, DateTime fechaMovInv)
         {
             var result = new DtoLib.Resultado();
 
@@ -57,6 +57,14 @@ namespace ProvPosOffLine
                     MySqlCommand comando1;
                     var rt = -1;
 
+                    //SE ENVIA FECHA GESTION DE MOV INVENTARIO, PARA LAS SUCURSALES
+                    var fechaMov=fechaMovInv;
+                    sql0 = "select @fechaMov into outfile \"" + pathDestino + "fecha_gestion_ftp.txt\"";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@fechaMov", fechaMovInv.Date);
+                    rt = comando1.ExecuteNonQuery();
+                    //
+                    
                     sql0 = "select * into outfile \"" + pathDestino + "usuarios_grupo.txt\" from usuarios_grupo";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
@@ -125,16 +133,23 @@ namespace ProvPosOffLine
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where FECHA >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
+                    ////NO ES NECESARIO ENVIAR HISTORICO DE PRECIOS
+                    //sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where FECHA >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where 1=0";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "clientes.txt\" FROM clientes where auto >'0900000001'";
+                    ////NO ES NECESARIO ENVIAR CLIENTES
+                    //sql0 = "select * into outfile \"" + pathDestino + "clientes.txt\" FROM clientes where auto >'0900000001'";
+                    sql0 = "select * into outfile \"" + pathDestino + "clientes.txt\" FROM clientes where 1=0";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_kardex.txt\" FROM productos_kardex where modulo<>'Ventas' and fecha>='2022/01/01'";
+                    //SE ENVIAN MOVIMIENTOS A TRAVEZ DE PARAMETRO DE ENTRADA
+                    //sql0 = "select * into outfile \"" + pathDestino + "productos_kardex.txt\" FROM productos_kardex where modulo<>'Ventas' and fecha>='2022/01/01'";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_kardex.txt\" FROM productos_kardex where modulo<>'Ventas' and fecha>=@fechaMov";
                     comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@fechaMov",fechaMov);
                     rt = comando1.ExecuteNonQuery();
 
                     sql0 = "select * into outfile \"" + pathDestino + "empresa_grupo.txt\" FROM empresa_grupo";
@@ -157,12 +172,18 @@ namespace ProvPosOffLine
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos.txt\" FROM productos_movimientos where fecha>='2022/01/01' ";
+                    //SE ENVIAN MOVIMIENTOS A TRAVEZ DE PARAMETRO DE ENTRADA
+                    //sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos.txt\" FROM productos_movimientos where fecha>='2022/01/01' ";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos.txt\" FROM productos_movimientos where fecha>=@fechaMov";
                     comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@fechaMov", fechaMov);
                     rt = comando1.ExecuteNonQuery();
 
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where fecha>='2022/01/01' ";
+                    //SE ENVIAN MOVIMIENTOS A TRAVEZ DE PARAMETRO DE ENTRADA
+                    //sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where fecha>='2022/01/01' ";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where fecha>=@fechaMov";
                     comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@fechaMov", fechaMov);
                     rt = comando1.ExecuteNonQuery();
 
                     sql0 = "select * into outfile \"" + pathDestino + "productos_medida.txt\" FROM productos_medida";
@@ -182,6 +203,12 @@ namespace ProvPosOffLine
                     rt = comando1.ExecuteNonQuery();
 
                     sql0 = "select * into outfile \"" + pathDestino + "empresa_sucursal_ext.txt\" FROM empresa_sucursal_ext";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    rt = comando1.ExecuteNonQuery();
+
+                    //
+
+                    sql0 = "select * into outfile \"" + pathDestino + "empresa_depositos_ext.txt\" FROM empresa_depositos_ext";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
                 };
@@ -613,6 +640,33 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
+                        //TABLA TEMPORAL PARA USO DEL FTP, TRAE LA FECHA QUE INDICA DESDE CUANDO SE PODRAN ELIMINAR LOS MOV DE INVENTARIO
+                        sql0 = "DROP TABLE IF EXISTS gestion_ftp;";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "CREATE TABLE gestion_ftp (`fecha_mov_inv` DATE NOT NULL) ENGINE = InnoDB;";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathData + "/fecha_gestion_ftp.txt\" into table gestion_ftp";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        var fecMovInv = DateTime.Now.Date;
+                        sql0 = @"select fecha_mov_inv as fechaMovInv from gestion_ftp";
+                        comando1 = new MySqlCommand(sql0, cn);
+                        var reader = comando1.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            fecMovInv = reader.GetDateTime("fechaMovInv").Date;
+                        }
+                        reader.Close();
+                        //
+
 
                         //LIMPIANDO TABLAS
                         sql0 = "delete from sistema_configuracion";
@@ -702,20 +756,24 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_precios";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
+                        ////NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
+                        //sql0 = "delete from productos_precios";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from clientes where auto > '0900000001'";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
+                        ////NO HACE FALTA RECIBIR CLIENTES
+                        //sql0 = "delete from clientes where auto > '0900000001'";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //rt = comando1.ExecuteNonQuery();
 
                         //
 
-                        sql0 = "delete from productos_kardex where modulo <> 'Ventas' and fecha>='2022/01/01'";
+                        //sql0 = "delete from productos_kardex where modulo <> 'Ventas' and fecha>='2022/01/01'";
+                        sql0 = "delete from productos_kardex where modulo <> 'Ventas' and fecha>=@fechaMov";
                         comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.AddWithValue("@fechaMov", fecMovInv);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
@@ -744,13 +802,17 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_movimientos_detalle where fecha>='2022/01/01'";
+                        //sql0 = "delete from productos_movimientos_detalle where fecha>='2022/01/01'";
+                        sql0 = "delete from productos_movimientos_detalle where fecha>=@fechaMov";
                         comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.AddWithValue("@fechaMov", fecMovInv);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_movimientos where fecha>='2022/01/01'";
+                        //sql0 = "delete from productos_movimientos where fecha>='2022/01/01'";
+                        sql0 = "delete from productos_movimientos where fecha>=@fechaMov";
                         comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.AddWithValue("@fechaMov", fecMovInv);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
@@ -775,6 +837,11 @@ namespace ProvPosOffLine
                         rt = comando1.ExecuteNonQuery();
 
                         sql0 = "delete from empresa_sucursal_ext";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "delete from empresa_depositos_ext";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
@@ -867,30 +934,30 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "load data infile \"" + pathData + "/productos_precios.txt\" into table productos_precios";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
+                        ////NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
+                        //sql0 = "load data infile \"" + pathData + "/productos_precios.txt\" into table productos_precios";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //rt = comando1.ExecuteNonQuery();
+
+                        ////NO HACE FALTA RECIBIR CLIENTES
+                        //sql0 = "load data infile \"" + pathData + "/clientes.txt\" into table clientes";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //rt = comando1.ExecuteNonQuery();
 
                         //
-
-                        sql0 = "load data infile \"" + pathData + "/clientes.txt\" into table clientes";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
-
-                        //
-
                         sql0 = "load data infile \"" + pathData + "/productos_kardex.txt\" into table productos_kardex";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_kardex where codigo_sucursal<>?codigoSucursal";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        comando1.Parameters.Clear();
-                        comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
+                        //// NO PUEDE ELIMINAR MOVIMIENTOS BASANDOME EN CODIGO DE LA SUCURSAL, DEBE SER CON EL AUTO DEL DEPOSITO
+                        //sql0 = "delete from productos_kardex where codigo_sucursal<>?codigoSucursal";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //comando1.Parameters.Clear();
+                        //comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
                         //rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathData + "/empresa_grupo.txt\" into table empresa_grupo";
@@ -918,6 +985,22 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
+                        //AGREGAR TABLA NUEVA
+                        sql0 = "load data infile \"" + pathData + "/empresa_depositos_ext.txt\" into table empresa_depositos_ext";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete dpExt
+                                    from empresa_depositos_ext as dpExt 
+                                    join empresa_depositos as dp on dp.auto=dpExt.auto_deposito 
+                                    where dp.codigo_sucursal<>?codigoSucursal";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
+                        rt = comando1.ExecuteNonQuery();
+
                         sql0 = "delete from empresa_depositos where codigo_sucursal<>?codigoSucursal";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
@@ -930,12 +1013,14 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "delete from productos_movimientos where codigo_sucursal<>?codigoSucursal";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        comando1.Parameters.Clear();
-                        comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
-                        //rt = comando1.ExecuteNonQuery();
+
+                        ////NO PUEDE ELIMINAR MOVIMIENTOS BASANDOME EN EL CODIGO DE LA SUCURSAL
+                        //sql0 = "delete from productos_movimientos where codigo_sucursal<>?codigoSucursal";
+                        //comando1 = new MySqlCommand(sql0, cn, tr);
+                        //comando1.CommandTimeout = int.MaxValue;
+                        //comando1.Parameters.Clear();
+                        //comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
+                        ////rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathData + "/productos_movimientos_detalle.txt\" into table productos_movimientos_detalle";
                         comando1 = new MySqlCommand(sql0, cn, tr);
@@ -975,15 +1060,6 @@ namespace ProvPosOffLine
                         comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
                         rt = comando1.ExecuteNonQuery();
 
-                        //
-                        sql0 = "delete from productos_kardex where modulo <> 'Ventas' and codigo_sucursal<>?codSucursal";
-                        comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
-                        comando1.Parameters.Clear();
-                        comando1.Parameters.AddWithValue("?codSucursal", codigoSuc);
-                        rt = comando1.ExecuteNonQuery();
-
-
                         //ESTADO NORMAL RESTRICCIONES FORANEAS
                         sql0 = "SET FOREIGN_KEY_CHECKS=1";
                         comando1 = new MySqlCommand(sql0, cn, tr);
@@ -1008,7 +1084,89 @@ namespace ProvPosOffLine
 
             return result;
         }
+
+        //
+
         public DtoLib.Resultado 
+            Servidor_Principal_EliminarMovimientosKardexExcluyeDeposito(string idDeposito)
+        {
+            var result = new DtoLib.Resultado();
+
+            try
+            {
+                using (var cn = new MySqlConnection(_cnn2.ConnectionString))
+                {
+                    cn.Open();
+
+                    MySqlTransaction tr = null;
+                    try
+                    {
+                        var sql0 = "";
+                        MySqlCommand comando1;
+                        var rt = -1;
+
+                        tr = cn.BeginTransaction();
+                        //
+                        sql0 = "delete from productos_kardex where auto_deposito<>?idDeposito";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?idDeposito", idDeposito);
+                        rt = comando1.ExecuteNonQuery();
+                        //
+                        tr.Commit();
+                    }
+                    catch (Exception ex1)
+                    {
+                        tr.Rollback();
+                        result.Mensaje = ex1.Message;
+                        result.Result = DtoLib.Enumerados.EnumResult.isError;
+                    }
+                };
+            }
+            catch (MySqlException ex2)
+            {
+                result.Mensaje = ex2.Message;
+                result.Result = DtoLib.Enumerados.EnumResult.isError;
+            }
+
+            return result;
+        }
+        public DtoLib.ResultadoEntidad<string> 
+            Sucursal_GetIdDepositoPrincipal_ByCodigoSucursal(string codSucursal)
+        {
+            var result = new DtoLib.ResultadoEntidad<string>();
+
+            try
+            {
+                var rt = "";
+                using (var cn = new MySqlConnection(_cnn2.ConnectionString))
+                {
+                    cn.Open();
+                    var sql0 = "";
+                    MySqlCommand comando1;
+
+                    sql0 = @"select autoDepositoPrincipal as autoDeposito from empresa_sucursal where codigo=@codSucursal";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@codSucursal", codSucursal);
+                    var reader = comando1.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        rt = reader.GetString("autoDeposito");
+                    }
+                    reader.Close();
+                };
+                result.Entidad = rt;
+            }
+            catch (MySqlException ex2)
+            {
+                result.Mensaje = ex2.Message;
+                result.Result = DtoLib.Enumerados.EnumResult.isError;
+            }
+
+            return result;
+        }
+        public DtoLib.Resultado
             Servidor_Principal_ActualizarInventarioDeposito()
         {
             var result = new DtoLib.Resultado();
@@ -1074,7 +1232,7 @@ namespace ProvPosOffLine
                             comando1.Parameters.AddWithValue("?ap", mv.autoProducto);
                             comando1.Parameters.AddWithValue("?ad", mv.autoDeposito);
                             rt = comando1.ExecuteNonQuery();
-                            if (rt == 0) 
+                            if (rt == 0)
                             {
                                 var msg = @"PROBLEMA AL ACTUALIZAR PRODUCTO DEPOSITO: " + Environment.NewLine + "Deposito: " + mv.autoDeposito + ", Producto: " + mv.autoProducto;
                                 new Exception(msg);
