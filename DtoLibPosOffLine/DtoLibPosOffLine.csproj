@@ -54,6 +54,7 @@
     <Compile Include="Servidor\EnviarData\ProductoDeposito.cs" />
     <Compile Include="Servidor\EnviarData\ProductoKardex.cs" />
     <Compile Include="Servidor\EnviarData\Serie.cs" />
+    <Compile Include="Servidor\MonitorCambiosBD\NevoCambio\Ficha.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\Documento.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\DocumentoDetalle.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\DocumentoPago.cs" />

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace IPosOffLine
 {
 
-    public interface IProvider: IServidor, IMonitorBoletin
+    public interface IProvider: IServidor, IMonitorBoletin, IMonitorCambiosBD
     {
 
         void 
