@@ -15,6 +15,8 @@ namespace DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio
         public DateTime fecha { get; set; }
         public string descripcion { get; set; }
         public string cmd { get; set; }
+        public string aplicaPosOffLine { get; set; }
+        public string aplicaPosOnLine { get; set; }
 
 
         public Ficha() 
@@ -23,6 +25,8 @@ namespace DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio
             fecha = DateTime.Now.Date;
             descripcion = "";
             cmd = "";
+            aplicaPosOffLine = "";
+            aplicaPosOnLine = "";
         }
 
     }

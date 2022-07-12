@@ -57,7 +57,8 @@ namespace ProvPosOffLine
 
             return result;
         }
-        public DtoLib.Resultado MonitorCambiosBD_ProcesarCambios(List<DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio.Ficha> lst)
+        public DtoLib.Resultado 
+            MonitorCambiosBD_ProcesarCambios(List<DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio.Ficha> lst)
         {
             var result = new DtoLib.Resultado();
 
@@ -143,7 +144,9 @@ namespace ProvPosOffLine
                         MySqlCommand comando1;
 
                         var lst = new List<DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio.Ficha>();
-                        sql0 = "select id, fecha, descripcion, cmd from monitor_cambios_bd where id>?id";
+                        sql0 = @"select id, fecha, descripcion, cmd, 
+                                            aplica_pos_offline as aplicaPosOffLine,
+                                            aplica_pos_online as aplicaPosOnLine from monitor_cambios_bd where id>?id";
                         comando1 = new MySqlCommand(sql0, cn);
                         comando1.Parameters.AddWithValue("?id",id);
                         var reader = comando1.ExecuteReader();
@@ -155,6 +158,8 @@ namespace ProvPosOffLine
                                 fecha = reader.GetDateTime("fecha"),
                                 descripcion = reader.GetString("descripcion"),
                                 cmd = reader.GetString("cmd"),
+                                aplicaPosOffLine = reader.GetString("aplicaPosOffLine"),
+                                aplicaPosOnLine = reader.GetString("aplicaPosOnLine"),
                             };
                             lst.Add(nr);
                         }
@@ -171,6 +176,64 @@ namespace ProvPosOffLine
             catch (MySqlException ex2)
             {
                 result.Mensaje = ex2.Message;
+                result.Result = DtoLib.Enumerados.EnumResult.isError;
+            }
+
+            return result;
+        }
+
+
+        public DtoLib.Resultado 
+            MonitorCambiosBD_Host_Insertar_NuevosCambios(string cmd)
+        {
+            var result = new DtoLib.Resultado();
+
+            try
+            {
+                using (var cn = new MySqlConnection(_cnn3.ConnectionString))
+                {
+                    cn.Open();
+                    MySqlTransaction tr = null;
+                    try
+                    {
+                        tr = cn.BeginTransaction();
+
+                        var sql0 = @"INSERT INTO `monitor_cambios_bd`
+                                    (`id`,
+                                    `fecha`,
+                                    `descripcion`,
+                                    `cmd`,
+                                    `aplica_pos_offline`,
+                                    `aplica_pos_online`)
+                                VALUES
+                                    (@id,
+                                    @fecha,
+                                    @descripcion,
+                                    @cmd,
+                                    @aplica_pos_offline,
+                                    @aplica_pos_online)";
+
+                        var comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.AddWithValue("@id", DBNull.Value);
+                        comando1.Parameters.AddWithValue("@fecha", DateTime.Now.Date);
+                        comando1.Parameters.AddWithValue("@descripcion", "CXC");
+                        comando1.Parameters.AddWithValue("@cmd", cmd);
+                        comando1.Parameters.AddWithValue("@aplica_pos_offline", "0");
+                        comando1.Parameters.AddWithValue("@aplica_pos_online", "1");
+                        comando1.ExecuteNonQuery();
+                        tr.Commit();
+                    }
+                    catch (Exception ex1)
+                    {
+                        tr.Rollback();
+                        result.Mensaje = ex1.Message;
+                        result.Result = DtoLib.Enumerados.EnumResult.isError;
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                result.Mensaje = e.Message;
                 result.Result = DtoLib.Enumerados.EnumResult.isError;
             }
 

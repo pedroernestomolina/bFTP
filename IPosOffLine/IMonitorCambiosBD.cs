@@ -20,6 +20,10 @@ namespace IPosOffLine
         DtoLib.ResultadoLista<DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio.Ficha>
             MonitorCambiosBD_Host_GetLista_NuevosCambios_APartirDel_IdRef(int id);
 
+
+        DtoLib.Resultado
+            MonitorCambiosBD_Host_Insertar_NuevosCambios(string cmd);
+
     }
 
 }
