@@ -22,7 +22,7 @@ namespace IPosOffLine
 
 
         DtoLib.Resultado
-            MonitorCambiosBD_Host_Insertar_NuevosCambios(string cmd);
+            MonitorCambiosBD_SubirHost_InsertarCambio(DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha ficha);
 
     }
 

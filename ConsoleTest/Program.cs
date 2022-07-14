@@ -10,20 +10,18 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
-//            IPosOffLine.IProvider _test = new ProvPosOffLine.Provider("");
-//            _test.setServidorRemoto("localhost", "00000001");
-//            var _cmd = @"
-//ALTER TABLE `cxc_medio_pago` ADD `opBanco` VARCHAR(60) NOT NULL AFTER `cierre_ftp`,  
-//ADD `opNroCta` VARCHAR(30) NOT NULL AFTER `opBanco`,  
-//ADD `opNroRef` VARCHAR(30) NOT NULL AFTER `opNroCta`, 
-// ADD `opFecha` DATE NULL AFTER `opNroRef`,  
-// ADD `opDetalle` VARCHAR(200) NOT NULL AFTER `opFecha`,  
-// ADD `opMonto` DECIMAL(19,8) NOT NULL AFTER `opDetalle`,  
-// ADD `opTasa` DECIMAL(14,2) NOT NULL AFTER `opMonto`,  
-// ADD `opAplicaConversion` VARCHAR(1) NOT NULL AFTER `opTasa`,  
-// ADD `estatus_doc_cxc` VARCHAR(1) NOT NULL AFTER `opAplicaConversion`,  
-// ADD `codigo_sucursal` VARCHAR(10) NOT NULL AFTER `estatus_doc_cxc`;";
-//            _test.MonitorCambiosBD_Host_Insertar_NuevosCambios(_cmd);
+            //IPosOffLine.IProvider _test = new ProvPosOffLine.Provider("");
+            //_test.setServidorRemoto("localhost", "00000001");
+
+            //var _fichaDto = new DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha()
+            //{
+            //    fecha = DateTime.Now.Date,
+            //    descripcion = "PARA LA ENUMERACION DE LOS CIERRE DE VENTA",
+            //    cmd = @"ALTER TABLE `pos_arqueo`  ADD `codigo_sucursal` VARCHAR(10) NOT NULL AFTER `montoNcr`,  ADD `id_equipo` VARCHAR(2) NOT NULL AFTER `codigo_sucursal`,  ADD `cierre_numero` INT NOT NULL AFTER `id_equipo`",
+            //    aplicaPosOffLine = "1",
+            //    aplicaPosOnLine = "1",
+            //};
+            //_test.MonitorCambiosBD_SubirHost_InsertarCambio (_fichaDto);
         }
     }
 }

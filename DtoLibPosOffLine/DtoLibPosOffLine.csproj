@@ -55,6 +55,7 @@
     <Compile Include="Servidor\EnviarData\ProductoKardex.cs" />
     <Compile Include="Servidor\EnviarData\Serie.cs" />
     <Compile Include="Servidor\MonitorCambiosBD\NevoCambio\Ficha.cs" />
+    <Compile Include="Servidor\MonitorCambiosBD\SubirHost\Insertar\Ficha.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\Documento.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\DocumentoDetalle.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\DocumentoPago.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Servidor\RecogerDataEnviar\MovimientoCierre.cs" />
     <Compile Include="Servidor\RecogerDataEnviar\Serie.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

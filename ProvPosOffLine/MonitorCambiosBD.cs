@@ -127,6 +127,7 @@ namespace ProvPosOffLine
         }
 
 
+        // PARA EL HOST
         public DtoLib.ResultadoLista<DtoLibPosOffLine.Servidor.MonitorCambiosBD.NevoCambio.Ficha> 
             MonitorCambiosBD_Host_GetLista_NuevosCambios_APartirDel_IdRef(int id)
         {
@@ -181,10 +182,8 @@ namespace ProvPosOffLine
 
             return result;
         }
-
-
         public DtoLib.Resultado 
-            MonitorCambiosBD_Host_Insertar_NuevosCambios(string cmd)
+            MonitorCambiosBD_SubirHost_InsertarCambio(DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha ficha)
         {
             var result = new DtoLib.Resultado();
 
@@ -212,14 +211,13 @@ namespace ProvPosOffLine
                                     @cmd,
                                     @aplica_pos_offline,
                                     @aplica_pos_online)";
-
                         var comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.Parameters.AddWithValue("@id", DBNull.Value);
-                        comando1.Parameters.AddWithValue("@fecha", DateTime.Now.Date);
-                        comando1.Parameters.AddWithValue("@descripcion", "CXC");
-                        comando1.Parameters.AddWithValue("@cmd", cmd);
-                        comando1.Parameters.AddWithValue("@aplica_pos_offline", "0");
-                        comando1.Parameters.AddWithValue("@aplica_pos_online", "1");
+                        comando1.Parameters.AddWithValue("@fecha", ficha.fecha );
+                        comando1.Parameters.AddWithValue("@descripcion", ficha.descripcion);
+                        comando1.Parameters.AddWithValue("@cmd", ficha.cmd);
+                        comando1.Parameters.AddWithValue("@aplica_pos_offline", ficha.aplicaPosOffLine);
+                        comando1.Parameters.AddWithValue("@aplica_pos_online", ficha.aplicaPosOnLine);
                         comando1.ExecuteNonQuery();
                         tr.Commit();
                     }
