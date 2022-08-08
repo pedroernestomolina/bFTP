@@ -134,8 +134,8 @@ namespace ProvPosOffLine
                     rt = comando1.ExecuteNonQuery();
 
                     ////NO ES NECESARIO ENVIAR HISTORICO DE PRECIOS
-                    //sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where FECHA >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
-                    sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where 1=0";
+                    sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where FECHA >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
+                    //sql0 = "select * into outfile \"" + pathDestino + "productos_precios.txt\" from productos_precios where 1=0";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
 
@@ -756,11 +756,11 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        ////NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
-                        //sql0 = "delete from productos_precios";
-                        //comando1 = new MySqlCommand(sql0, cn, tr);
-                        //comando1.CommandTimeout = int.MaxValue;
-                        //rt = comando1.ExecuteNonQuery();
+                        //NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
+                        sql0 = "delete from productos_precios";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
 
                         ////NO HACE FALTA RECIBIR CLIENTES
                         //sql0 = "delete from clientes where auto > '0900000001'";
@@ -934,11 +934,11 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        ////NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
-                        //sql0 = "load data infile \"" + pathData + "/productos_precios.txt\" into table productos_precios";
-                        //comando1 = new MySqlCommand(sql0, cn, tr);
-                        //comando1.CommandTimeout = int.MaxValue;
-                        //rt = comando1.ExecuteNonQuery();
+                        //NO HACE FALTA RECIBIR HISTORICO DE PRECIOS
+                        sql0 = "load data infile \"" + pathData + "/productos_precios.txt\" into table productos_precios";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
 
                         ////NO HACE FALTA RECIBIR CLIENTES
                         //sql0 = "load data infile \"" + pathData + "/clientes.txt\" into table clientes";

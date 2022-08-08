@@ -16,17 +16,17 @@ namespace ConsoleTest
             var _fichaDto = new DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha()
             {
                 fecha = DateTime.Now.Date,
-                descripcion = "PARA INVENTARIO: DEFINIR CAMPO VOLUMEN",
-                cmd = @"ALTER TABLE `productos`  ADD `volumen` DECIMAL(14,6) NOT NULL AFTER `pdf_pto`",
+                descripcion = "ACTUALIZACION 2022/08/03",
+                cmd = @"ALTER TABLE `productos_kardex`  ADD `factor_cambio` DECIMAL(14,4) NOT NULL AFTER `nombre_concepto`",
                 aplicaPosOffLine = "1",
                 aplicaPosOnLine = "1",
             };
-            var rt1 = _test.MonitorCambiosBD_SubirHost_InsertarCambio(_fichaDto);
-            if (rt1.Result == DtoLib.Enumerados.EnumResult.isError)
-            {
-                Console.WriteLine("ERROR:");
-                Console.WriteLine(rt1.Mensaje);
-            }
+            //var rt1 = _test.MonitorCambiosBD_SubirHost_InsertarCambio(_fichaDto);
+            //if (rt1.Result == DtoLib.Enumerados.EnumResult.isError)
+            //{
+            //    Console.WriteLine("ERROR:");
+            //    Console.WriteLine(rt1.Mensaje);
+            //}
             Console.ReadKey();
         }
     }
