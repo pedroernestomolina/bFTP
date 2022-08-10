@@ -16,9 +16,9 @@ namespace ConsoleTest
             var _fichaDto = new DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha()
             {
                 fecha = DateTime.Now.Date,
-                descripcion = "ACTUALIZACION 2022/08/03",
-                cmd = @"ALTER TABLE `productos_kardex`  ADD `factor_cambio` DECIMAL(14,4) NOT NULL AFTER `nombre_concepto`",
-                aplicaPosOffLine = "1",
+                descripcion = "ACTUALIZACION 2022/08/10",
+                cmd = @"ALTER TABLE `p_resumen` CHANGE `m_otros` `m_otros` DECIMAL(14,2) NOT NULL",
+                aplicaPosOffLine = "0",
                 aplicaPosOnLine = "1",
             };
             //var rt1 = _test.MonitorCambiosBD_SubirHost_InsertarCambio(_fichaDto);
@@ -27,7 +27,7 @@ namespace ConsoleTest
             //    Console.WriteLine("ERROR:");
             //    Console.WriteLine(rt1.Mensaje);
             //}
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }
