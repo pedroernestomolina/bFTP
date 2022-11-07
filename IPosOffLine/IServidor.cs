@@ -23,13 +23,24 @@ namespace IPosOffLine
             Servidor_Principal_InsertarBoletin(string codigoSuc, string rutaArchivoTxt);
 
         //
-
         DtoLib.ResultadoEntidad<string>
             Sucursal_GetIdDepositoPrincipal_ByCodigoSucursal(string codSucursal);
         DtoLib.Resultado
             Servidor_Principal_EliminarMovimientosKardexExcluyeDeposito(string idDeposito);
         DtoLib.Resultado
             Servidor_Principal_ActualizarInventarioDeposito();
+
+
+        //
+        // VERIFICAR SI HAY MOVIMIENTOS AL PREPARAR CIERRE, PARA NO MEZCLAR 
+        DtoLib.ResultadoEntidad<int>
+            Verificar_ParaPrepararCierre();
+
+
+        //
+        // PROCESO PARA REVERSAR UN CIERRE, SOLO DE MANERA INTERNA
+        DtoLib.Resultado
+            Servidor_Principal_ReversarCierre();
 
     }
 

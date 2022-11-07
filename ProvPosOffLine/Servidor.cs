@@ -59,11 +59,12 @@ namespace ProvPosOffLine
 
                     //SE ENVIA FECHA GESTION DE MOV INVENTARIO, PARA LAS SUCURSALES
                     var fechaMov=fechaMovInv;
-                    sql0 = "select @fechaMov into outfile \"" + pathDestino + "fecha_gestion_ftp.txt\"";
+                    sql0 = "select @fechaMov, now() as fechaBoletin into outfile \"" + pathDestino + "fecha_gestion_ftp.txt\"";
                     comando1 = new MySqlCommand(sql0, cn);
                     comando1.Parameters.AddWithValue("@fechaMov", fechaMovInv.Date);
                     rt = comando1.ExecuteNonQuery();
                     //
+
                     
                     sql0 = "select * into outfile \"" + pathDestino + "usuarios_grupo.txt\" from usuarios_grupo";
                     comando1 = new MySqlCommand(sql0, cn);
@@ -646,7 +647,7 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        sql0 = "CREATE TABLE gestion_ftp (`fecha_mov_inv` DATE NOT NULL) ENGINE = InnoDB;";
+                        sql0 = "CREATE TABLE gestion_ftp (`fecha_mov_inv` DATE NOT NULL, `fecha_boletin` DATETIME NOT NULL) ENGINE = InnoDB;";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
@@ -1296,6 +1297,199 @@ namespace ProvPosOffLine
             return result;
 
         }
+
+
+
+        // 
+        // VERIFICAR SI SE PUEDE PREPARAR EL CIERRE DE VENTAS
+        public DtoLib.ResultadoEntidad<int> 
+            Verificar_ParaPrepararCierre()
+        {
+            var result = new DtoLib.ResultadoEntidad<int>();
+
+            try
+            {
+                var rt = -1;
+                using (var cn = new MySqlConnection(_cnn2.ConnectionString))
+                {
+                    cn.Open();
+                    var sql0 = "";
+                    MySqlCommand comando1;
+
+                    sql0 = @"SELECT 
+                                count(*) as cnt
+                                FROM p_operador as op
+                                join p_resumen as r on r.id_p_operador=op.id
+                                join ventas as v on v.cierre=r.auto_pos_arqueo
+                                where estatus='A'";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    var reader = comando1.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        rt = reader.GetInt32("cnt");
+                    }
+                    reader.Close();
+                };
+                result.Entidad = rt;
+            }
+            catch (MySqlException ex2)
+            {
+                result.Mensaje = ex2.Message;
+                result.Result = DtoLib.Enumerados.EnumResult.isError;
+            }
+            return result;
+        }
+       
+
+        //
+        // PROCESO PARA REVERSAR UN CIERRE, SOLO DE MANERA INTERNA
+        public DtoLib.Resultado
+            Servidor_Principal_ReversarCierre()
+        {
+            var result = new DtoLib.Resultado();
+            var listMv = new List<DataKardexResumen>();
+
+            try
+            {
+                using (var cn = new MySqlConnection(_cnn2.ConnectionString))
+                {
+                    cn.Open();
+
+                    MySqlTransaction tr = null;
+                    try
+                    {
+                        tr = cn.BeginTransaction();
+
+
+                        var sql0 = "";
+                        MySqlCommand comando1;
+                        var rt = -1;
+
+
+                        sql0 = "SET FOREIGN_KEY_CHECKS=0";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+
+                        //VENTAS
+                        sql0 = @"delete vd
+                                    from ventas_detalle as vd
+                                    join ventas as v on vd.auto_documento=v.auto
+                                    where v.fecha='2022/11/02'
+                                    and v.codigo_sucursal='03'
+                                    and v.cierre in ('0302000250', '0304000251')";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete from ventas 
+                                    where fecha='2022/11/02'
+                                    and codigo_sucursal='03'
+                                    and cierre in ('0302000250', '0304000251')";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        
+                        sql0 = @"delete from pos_arqueo
+                                    where auto_cierre in ('0302000250', '0304000251')";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+
+                        sql0 = @"delete from cxc_medio_pago 
+                                    WHERE codigo_sucursal='03' and
+                                    fecha='2022/11/02'";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete from 
+                                    cxc_documentos
+                                    WHERE codigo_sucursal='03' and
+                                    fecha='2022/11/02'";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete from 
+                                    cxc_recibos
+                                    where fecha='2022/11/02' and
+                                    codigo_sucursal='03' and 
+                                    cierre in ('0302000250', '0304000251')";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete from 
+                                    cxc
+                                    WHERE codigo_sucursal='03' and
+                                    fecha='2022/11/02'";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+
+                        sql0 = @"SELECT 
+                                    auto_producto, 
+                                    sum(cantidad_und*signo) cnt, 
+                                    auto_deposito
+                                FROM productos_kardex
+                                WHERE codigo_sucursal='03' and 
+                                fecha='2022/11/02' and 
+                                modulo='Ventas' and
+                                estatus_anulado='0'
+                                group by auto_producto, auto_deposito";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        var reader = comando1.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            var nr = new DataKardexResumen()
+                            {
+                                autoProducto = reader.GetString("auto_producto"),
+                                autoDeposito = reader.GetString("auto_deposito"),
+                                cnt = reader.GetDecimal("cnt")
+                            };
+                            listMv.Add(nr);
+                        }
+                        reader.Close();
+
+                        sql0 = "update productos_deposito set fisica=fisica-?cnt, disponible=disponible-?cnt where auto_producto=?ap and auto_deposito=?ad";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        foreach (var mv in listMv)
+                        {
+                            comando1.Parameters.Clear();
+                            comando1.Parameters.AddWithValue("?cnt", mv.cnt);
+                            comando1.Parameters.AddWithValue("?ap", mv.autoProducto);
+                            comando1.Parameters.AddWithValue("?ad", mv.autoDeposito);
+                            rt = comando1.ExecuteNonQuery();
+                        }
+
+                        sql0 = @"delete from 
+                                    productos_kardex
+                                    WHERE codigo_sucursal='03' and 
+                                    fecha='2022/11/02' and 
+                                    modulo='Ventas'";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "SET FOREIGN_KEY_CHECKS=1";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        tr.Commit();
+                    }
+                    catch (Exception ex1)
+                    {
+                        tr.Rollback();
+                        result.Mensaje = ex1.Message;
+                        result.Result = DtoLib.Enumerados.EnumResult.isError;
+                    }
+                };
+            }
+            catch (MySqlException ex2)
+            {
+                result.Mensaje = ex2.Message;
+                result.Result = DtoLib.Enumerados.EnumResult.isError;
+            }
+
+            return result;
+        }
+
 
     }
 

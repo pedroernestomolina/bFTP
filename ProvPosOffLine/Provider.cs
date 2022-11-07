@@ -55,7 +55,7 @@ namespace ProvPosOffLine
 
             var _usuario = usuario;
             var _password = "123";
-            var _instancia = instancia ;
+            var _instancia = instancia;
             var _baseDatos = baseDatos;
             var cadena = "Database=" + _baseDatos + "; Data Source=" + _instancia + "; User Id=" + _usuario + "; Password=" + _password + "";
             _cnn2 = new MySqlConnectionStringBuilder();
