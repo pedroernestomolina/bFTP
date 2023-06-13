@@ -10,15 +10,12 @@ using System.Threading.Tasks;
 
 namespace ProvPosOffLine
 {
-
-
     public class DataKardexResumen
     {
         public string autoProducto { get; set; }
         public string autoDeposito { get; set; }
         public decimal cnt { get; set; }
     }
-
 
     public partial class Provider : IPosOffLine.IProvider
     {
@@ -187,6 +184,12 @@ namespace ProvPosOffLine
                     comando1.Parameters.AddWithValue("@fechaMov", fechaMov);
                     rt = comando1.ExecuteNonQuery();
 
+                    //SE ENVIAN MOVIMIENTOS A TRAVEZ DE PARAMETRO DE ENTRADA
+                    sql0 = "select movExt.* into outfile \"" + pathDestino + "productos_movimientos_extra.txt\" FROM productos_movimientos_extra as movExt join productos_movimientos as mov on movExt.auto_movimiento=mov.auto where fecha>=@fechaMov";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    comando1.Parameters.AddWithValue("@fechaMov", fechaMov);
+                    rt = comando1.ExecuteNonQuery();
+
                     sql0 = "select * into outfile \"" + pathDestino + "productos_medida.txt\" FROM productos_medida";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
@@ -208,8 +211,15 @@ namespace ProvPosOffLine
                     rt = comando1.ExecuteNonQuery();
 
                     //
-
                     sql0 = "select * into outfile \"" + pathDestino + "empresa_depositos_ext.txt\" FROM empresa_depositos_ext";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    rt = comando1.ExecuteNonQuery();
+
+                    sql0 = "select * into outfile \"" + pathDestino + "tomainv_solicitud.txt\" FROM tomainv_solicitud";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    rt = comando1.ExecuteNonQuery();
+
+                    sql0 = "select * into outfile \"" + pathDestino + "tomainv_solicitud_detalle.txt\" FROM tomainv_solicitud_detalle";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
                 };
@@ -345,6 +355,26 @@ namespace ProvPosOffLine
                             rt = comando1.ExecuteNonQuery();
                         }
 
+
+                        //TOMAS DE INVENTARIO
+                        sql0 = "load data infile \"" + pathOrigen + "tomainv.txt\" into table tomainv";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathOrigen + "tomainv_detalle.txt\" into table tomainv_detalle";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathOrigen + "tomainv_conteo.txt\" into table tomainv_conteo";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathOrigen + "tomainv_result.txt\" into table tomainv_result";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+                        //
+
+
                         sql0 = "SET FOREIGN_KEY_CHECKS=1";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         rt = comando1.ExecuteNonQuery();
@@ -463,6 +493,33 @@ namespace ProvPosOffLine
                         rt = comando1.ExecuteNonQuery();
 
                         sql0 = "select * into OUTFILE \"" + pathDestino + "productos_movimientos_detalle.txt\" FROM productos_movimientos_detalle where tipo='05' and cierre_ftp='' ";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+
+                        //TOMAS DE INVENTARIO
+                        sql0 = "select * into OUTFILE \"" + pathDestino + "tomainv.txt\" FROM tomainv where estatusProcesado='1' and cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "select detalle.* into OUTFILE \"" + pathDestino + "tomainv_detalle.txt\" FROM " + @"tomainv_detalle as detalle 
+                                                                                                            join tomainv as toma on toma.auto=detalle.auto_tomainv
+                                                                                                            where toma.estatusProcesado='1' 
+                                                                                                            and toma.cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "select conteo.* into OUTFILE \"" + pathDestino + "tomainv_conteo.txt\" FROM " + @"tomainv_conteo as conteo 
+                                                                                                            join tomainv as toma on toma.auto=conteo.auto_tomainv
+                                                                                                            where toma.estatusProcesado='1' 
+                                                                                                            and toma.cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "select result.* into OUTFILE \"" + pathDestino + "tomainv_result.txt\" FROM " + @"tomainv_result as result 
+                                                                                                            join tomainv as toma on toma.auto=result.auto_tomainv
+                                                                                                            where toma.estatusProcesado='1' 
+                                                                                                            and toma.cierre_ftp=''";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         rt = comando1.ExecuteNonQuery();
 
@@ -590,6 +647,43 @@ namespace ProvPosOffLine
                         rt = comando1.ExecuteNonQuery();
 
                         sql0 = "update productos_movimientos_detalle set cierre_ftp=?cierre where tipo='05' and cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //TOMAS INVENTARIO
+                        sql0 = "update tomainv set cierre_ftp=?cierre where estatusProcesado='1' and cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"update 
+                                tomainv_detalle as detalle 
+                                join tomainv as toma on toma.auto=detalle.auto_tomainv
+                                set detalle.cierre_ftp=?cierre 
+                                where toma.estatusProcesado='1' and detalle.cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"update 
+                                tomainv_conteo as conteo
+                                join tomainv as toma on toma.auto=conteo.auto_tomainv
+                                set conteo.cierre_ftp=?cierre 
+                                where toma.estatusProcesado='1' and conteo.cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"update 
+                                tomainv_result as result
+                                join tomainv as toma on toma.auto=result.auto_tomainv
+                                set result.cierre_ftp=?cierre 
+                                where toma.estatusProcesado='1' and result.cierre_ftp=''";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.Parameters.Clear();
                         comando1.Parameters.AddWithValue("?cierre", aCierre);
@@ -803,7 +897,17 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
-                        //sql0 = "delete from productos_movimientos_detalle where fecha>='2022/01/01'";
+                        //MOVIMIENTOS EXTRA
+                        sql0 = @"delete movExt
+                                    from productos_movimientos_extra as movExt 
+                                    join productos_movimientos as mov on movExt.auto_movimiento=mov.auto
+                                    where mov.fecha>=@fechaMov";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.AddWithValue("@fechaMov", fecMovInv);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        //MOVIMIENTOS DETALLE
                         sql0 = "delete from productos_movimientos_detalle where fecha>=@fechaMov";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.Parameters.AddWithValue("@fechaMov", fecMovInv);
@@ -846,6 +950,18 @@ namespace ProvPosOffLine
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
+
+                        //
+                        sql0 = "delete from tomainv_solicitud_detalle";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "delete from tomainv_solicitud";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
 
                         // PROCESO DE INSERTAR
                         sql0 = "load data infile \"" + pathData + "/sistema_configuracion.txt\" into table sistema_configuracion";
@@ -992,6 +1108,38 @@ namespace ProvPosOffLine
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
 
+                        //
+                        sql0 = "load data infile \"" + pathData + "/tomainv_solicitud.txt\" into table tomainv_solicitud";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathData + "/tomainv_solicitud_detalle.txt\" into table tomainv_solicitud_detalle";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete detalle 
+                                    from tomainv_solicitud_detalle as detalle
+                                    join tomainv_solicitud as solicitud on detalle.auto_solicitud=solicitud.auto 
+                                    where solicitud.codigoSucursal<>?codigoSucursal";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = @"delete solicitud
+                                    from tomainv_solicitud as solicitud
+                                    where solicitud.codigoSucursal<>?codigoSucursal";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
+                        rt = comando1.ExecuteNonQuery();
+                        //
+
+
                         sql0 = @"delete dpExt
                                     from empresa_depositos_ext as dpExt 
                                     join empresa_depositos as dp on dp.auto=dpExt.auto_deposito 
@@ -1027,6 +1175,12 @@ namespace ProvPosOffLine
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
                         rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathData + "/productos_movimientos_extra.txt\" into table productos_movimientos_extra";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
 
                         sql0 = "load data infile \"" + pathData + "/productos_medida.txt\" into table productos_medida";
                         comando1 = new MySqlCommand(sql0, cn, tr);
@@ -1196,13 +1350,14 @@ namespace ProvPosOffLine
 		                                        sum(vd.cantidad_und*v.signo) as cnt
 		                                        FROM ventas_detalle as vd 
 		                                        join ventas as v on vd.auto_documento=v.auto
-		                                        where v.cierre in 
+		                                        where (v.cierre in 
                                                     (
                                                         SELECT r.auto_pos_arqueo as cierre
                                                         from p_operador as o 
                                                         join p_resumen as r on r.id_p_operador=o.id
                                                         where o.estatus='A'
                                                     )
+                                                    or v.cierre_ftp='')
                                                     and v.estatus_anulado='0'
                                                     and v.tipo in ('01','03','04')
                                                     group by vd.auto_producto, vd.auto_deposito
@@ -1489,8 +1644,5 @@ namespace ProvPosOffLine
 
             return result;
         }
-
-
     }
-
 }
