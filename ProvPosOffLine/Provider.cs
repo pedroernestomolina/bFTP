@@ -68,7 +68,8 @@ namespace ProvPosOffLine
             _cnn3.Database = "pitaTest";
             _cnn3.UserID = "leonuxBD";
             _cnn3.Password = "ghx_k!kibx+D";
-            _cnn3.Server = "107.180.50.172";
+            _cnn3.Server = "107.180.117.192";
+            //_cnn3.Server = "107.180.50.172";
         }
         public DtoLib.Resultado
             TestBD_Local()

@@ -11,12 +11,11 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             IPosOffLine.IProvider _test = new ProvPosOffLine.Provider("");
-            _test.setServidorRemoto("localhost", "mscala");
+            _test.setServidorRemoto("localhost", "divimar");
 
 
             var _fichaDto = new DtoLibPosOffLine.Servidor.MonitorCambiosBD.SubirHost.Insertar.Ficha()
             {
-                fecha = DateTime.Now.Date,
                 //descripcion = "ACTUALIZACION 2022/12/15, POS",
                 // cmd = @"ALTER TABLE `ventas`  ADD `porct_bono_por_pago_divisa` DECIMAL(14,2) NOT NULL AFTER `cierre_ftp`,  
                 //           ADD `cnt_divisa_aplica_bono_por_pago_divisa` INT NOT NULL AFTER `porct_bono_por_pago_divisa`,  
@@ -38,19 +37,48 @@ namespace ConsoleTest
                 //                cmd = @"ALTER TABLE `productos_movimientos_transito_detalle`  ADD `contEmpaqueInv` INT NOT NULL AFTER `exFisicaDestino`,
                 //                            ADD `descEmpaqueInv` VARCHAR(20) NOT NULL AFTER `contEmpaqueInv`;",
 
-                descripcion = "ACTUALIZACION 2023/05/17, POS",
+                //descripcion = "ACTUALIZACION 2023/05/17, POS",
                 //cmd = @"ALTER TABLE `productos`  ADD `estatus_talla_color_sabor` VARCHAR(1) NOT NULL DEFAULT '0' AFTER `volumen`;",
                 //cmd = @"ALTER TABLE `ventas`  ADD `estatus_fiscal` VARCHAR(1) NOT NULL DEFAULT '' AFTER `estatus_vuelto_por_pago_movil`;",
                 //cmd = @"ALTER TABLE `ventas`  ADD `z_fiscal` INT NOT NULL DEFAULT '0' AFTER `estatus_fiscal`;",
+
+
+                //NOTA: SE DEBE EJECUTAR CADA COMANDOPOR SEPARADO
+                fecha = DateTime.Now.Date,
+                descripcion = "ACTUALIZACION 2024/02/12, ADM",
+//                cmd = @"ALTER TABLE `proveedores`  ADD `codigo_xml_islr` VARCHAR(20) NOT NULL DEFAULT ''  AFTER `nj`,  
+//                                                    ADD `desc_xml_islr` VARCHAR(100) NOT NULL DEFAULT ''  AFTER `codigo_xml_islr`;",
+//                cmd = @"CREATE TABLE `compras_pend_detalle_preciosVta` 
+//                                    (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+//                                    `id_item_pend` INT NOT NULL, 
+//                                    `id_pend` INT NOT NULL, 
+//                                    `id_tipo_empq_vta` INT NOT NULL, 
+//                                    `desc_empq_vta` VARCHAR(20) NOT NULL, 
+//                                    `cont_empq_vta` INT NOT NULL, 
+//                                    `precio_vta_1` DECIMAL(14,2) NOT NULL, 
+//                                    `precio_vta_2` DECIMAL(14,2) NOT NULL, 
+//                                    `precio_vta_3` DECIMAL(14,2) NOT NULL, 
+//                                    `precio_vta_4` DECIMAL(14,2) NOT NULL, 
+//                                    `precio_vta_5` DECIMAL(14,2) NOT NULL) ENGINE = InnoDB;",
+//                cmd = @"CREATE TABLE `p_log` 
+//                                    (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+//                                    `id_operador` INT NOT NULL, 
+//                                    `id_usu_autoriza` VARCHAR(10) NOT NULL DEFAULT '', 
+//                                    `cod_usu_autoriza` VARCHAR(10) NOT NULL DEFAULT '',
+//                                    `nom_usu_autoriza` VARCHAR(20) NOT NULL DEFAULT '',
+//                                    `fecha` DATE NOT NULL, 
+//                                    `hora` VARCHAR(10) NOT NULL DEFAULT '', 
+//                                    `accion` VARCHAR(100) NOT NULL DEFAULT '', 
+//                                    `descripcion` VARCHAR(5000) NOT NULL DEFAULT '') ENGINE = InnoDB;",
                 aplicaPosOffLine = "1",
                 aplicaPosOnLine = "1",
             };
-            //var rt1 = _test.MonitorCambiosBD_SubirHost_InsertarCambio(_fichaDto);
-            //if (rt1.Result == DtoLib.Enumerados.EnumResult.isError)
-            //{
-            //    Console.WriteLine("ERROR:");
-            //    Console.WriteLine(rt1.Mensaje);
-            //}
+            var rt1 = _test.MonitorCambiosBD_SubirHost_InsertarCambio(_fichaDto);
+            if (rt1.Result == DtoLib.Enumerados.EnumResult.isError)
+            {
+                Console.WriteLine("ERROR:");
+                Console.WriteLine(rt1.Mensaje);
+            }
             Console.WriteLine("PRESIONA UNA TECLA PARA CONTINUAR...");
             Console.ReadKey();
 

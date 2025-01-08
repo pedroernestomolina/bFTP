@@ -359,19 +359,19 @@ namespace ProvPosOffLine
                         //TOMAS DE INVENTARIO
                         sql0 = "load data infile \"" + pathOrigen + "tomainv.txt\" into table tomainv";
                         comando1 = new MySqlCommand(sql0, cn, tr);
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathOrigen + "tomainv_detalle.txt\" into table tomainv_detalle";
                         comando1 = new MySqlCommand(sql0, cn, tr);
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathOrigen + "tomainv_conteo.txt\" into table tomainv_conteo";
                         comando1 = new MySqlCommand(sql0, cn, tr);
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathOrigen + "tomainv_result.txt\" into table tomainv_result";
                         comando1 = new MySqlCommand(sql0, cn, tr);
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
                         //
 
 
@@ -1112,12 +1112,12 @@ namespace ProvPosOffLine
                         sql0 = "load data infile \"" + pathData + "/tomainv_solicitud.txt\" into table tomainv_solicitud";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
 
                         sql0 = "load data infile \"" + pathData + "/tomainv_solicitud_detalle.txt\" into table tomainv_solicitud_detalle";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.CommandTimeout = int.MaxValue;
-                        rt = comando1.ExecuteNonQuery();
+                        //rt = comando1.ExecuteNonQuery();
 
                         sql0 = @"delete detalle 
                                     from tomainv_solicitud_detalle as detalle
