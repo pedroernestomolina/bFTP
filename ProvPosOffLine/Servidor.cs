@@ -222,6 +222,14 @@ namespace ProvPosOffLine
                     sql0 = "select * into outfile \"" + pathDestino + "tomainv_solicitud_detalle.txt\" FROM tomainv_solicitud_detalle";
                     comando1 = new MySqlCommand(sql0, cn);
                     rt = comando1.ExecuteNonQuery();
+
+                    sql0 = "select * into outfile \"" + pathDestino + "empresa_medios.txt\" FROM empresa_medios";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    rt = comando1.ExecuteNonQuery();
+
+                    sql0 = "select * into outfile \"" + pathDestino + "vl_currencies.txt\" FROM vl_currencies";
+                    comando1 = new MySqlCommand(sql0, cn);
+                    rt = comando1.ExecuteNonQuery();
                 };
             }
             catch (MySqlException ex2)
@@ -294,10 +302,27 @@ namespace ProvPosOffLine
                         rt = comando1.ExecuteNonQuery();
 
 
+
                         //ARQUEO
                         sql0 = "load data infile \"" + pathOrigen + "pos_arqueo.txt\" into table pos_arqueo";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         rt = comando1.ExecuteNonQuery();
+
+                        //ARQUEO DOCUMENTOS
+                        sql0 = "load data infile \"" + pathOrigen + "pos_arqueo_documentos.txt\" into table pos_arqueo_documentos";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //ARQUEO TOTALES
+                        sql0 = "load data infile \"" + pathOrigen + "pos_arqueo_totales.txt\" into table pos_arqueo_totales";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //ARQUEO METODOS PAGO
+                        sql0 = "load data infile \"" + pathOrigen + "pos_arqueo_metodos_pago.txt\" into table pos_arqueo_metodos_pago";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
 
 
                         //COMPRAS
@@ -467,6 +492,21 @@ namespace ProvPosOffLine
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         rt = comando1.ExecuteNonQuery();
 
+                        //ARQUEO_DOCUMENTOS
+                        sql0 = "select * into OUTFILE \"" + pathDestino + "pos_arqueo_documentos.txt\" FROM pos_arqueo_documentos where cierre_ftp='' ";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //ARQUEO_TOTALES
+                        sql0 = "select * into OUTFILE \"" + pathDestino + "pos_arqueo_totales.txt\" FROM pos_arqueo_totales where cierre_ftp='' ";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //ARQUEO_METODOS_PAGO
+                        sql0 = "select * into OUTFILE \"" + pathDestino + "pos_arqueo_metodos_pago.txt\" FROM pos_arqueo_metodos_pago where cierre_ftp='' ";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        rt = comando1.ExecuteNonQuery();
+
 
                         //COMPRAS
                         sql0 = "select * into OUTFILE \"" + pathDestino + "compras.txt\" FROM compras where tipo='05' and cierre_ftp='' ";
@@ -619,6 +659,27 @@ namespace ProvPosOffLine
 
                         //POS ARQUEO
                         sql0 = "update pos_arqueo set cierre_ftp=?cierre where cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //POS ARQUEO DOCUMENTOS
+                        sql0 = "update pos_arqueo_documentos set cierre_ftp=?cierre where cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //POS ARQUEO TOTALES
+                        sql0 = "update pos_arqueo_totales set cierre_ftp=?cierre where cierre_ftp=''";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.AddWithValue("?cierre", aCierre);
+                        rt = comando1.ExecuteNonQuery();
+
+                        //POS ARQUEO METODOS PAGO
+                        sql0 = "update pos_arqueo_metodos_pago set cierre_ftp=?cierre where cierre_ftp=''";
                         comando1 = new MySqlCommand(sql0, cn, tr);
                         comando1.Parameters.Clear();
                         comando1.Parameters.AddWithValue("?cierre", aCierre);
@@ -963,6 +1024,22 @@ namespace ProvPosOffLine
                         rt = comando1.ExecuteNonQuery();
 
 
+                        //
+
+                        sql0 = "delete from empresa_medios";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "truncate table vl_currencies";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        //
+
+
+
                         // PROCESO DE INSERTAR
                         sql0 = "load data infile \"" + pathData + "/sistema_configuracion.txt\" into table sistema_configuracion";
                         comando1 = new MySqlCommand(sql0, cn, tr);
@@ -1215,6 +1292,23 @@ namespace ProvPosOffLine
                         comando1.Parameters.AddWithValue("?codigoSucursal", codigoSuc);
                         rt = comando1.ExecuteNonQuery();
 
+
+                        //
+
+                        sql0 = "load data infile \"" + pathData + "/empresa_medios.txt\" into table empresa_medios";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        sql0 = "load data infile \"" + pathData + "/vl_currencies.txt\" into table vl_currencies";
+                        comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = int.MaxValue;
+                        rt = comando1.ExecuteNonQuery();
+
+                        //
+                        
+
+
                         //ESTADO NORMAL RESTRICCIONES FORANEAS
                         sql0 = "SET FOREIGN_KEY_CHECKS=1";
                         comando1 = new MySqlCommand(sql0, cn, tr);
@@ -1264,7 +1358,8 @@ namespace ProvPosOffLine
                         //
                         sql0 = "delete from productos_kardex where auto_deposito<>?idDeposito";
                         comando1 = new MySqlCommand(sql0, cn, tr);
-                        comando1.CommandTimeout = int.MaxValue;
+                        //comando1.CommandTimeout = int.MaxValue;
+                        comando1.CommandTimeout = 0;
                         comando1.Parameters.Clear();
                         comando1.Parameters.AddWithValue("?idDeposito", idDeposito);
                         rt = comando1.ExecuteNonQuery();
@@ -1303,6 +1398,7 @@ namespace ProvPosOffLine
 
                     sql0 = @"select autoDepositoPrincipal as autoDeposito from empresa_sucursal where codigo=@codSucursal";
                     comando1 = new MySqlCommand(sql0, cn);
+                    comando1.CommandTimeout = 0;
                     comando1.Parameters.AddWithValue("@codSucursal", codSucursal);
                     var reader = comando1.ExecuteReader();
                     while (reader.Read())
@@ -1363,6 +1459,7 @@ namespace ProvPosOffLine
                                                     group by vd.auto_producto, vd.auto_deposito
                                         ) as v1";
                         comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = 0;
                         var reader = comando1.ExecuteReader();
                         while (reader.Read())
                         {
@@ -1381,6 +1478,7 @@ namespace ProvPosOffLine
                                             disponible=disponible-?cnt 
                                         where auto_producto=?ap and auto_deposito=?ad";
                         comando1 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = 0;
                         foreach (var mv in listMv)
                         {
                             comando1.Parameters.Clear();
@@ -1403,6 +1501,7 @@ namespace ProvPosOffLine
                                 FROM p_venta
                                 group by auto_deposito, auto_producto";
                         var comando2 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = 0;
                         var reader2 = comando2.ExecuteReader();
                         while (reader2.Read())
                         {
@@ -1420,6 +1519,7 @@ namespace ProvPosOffLine
                                             disponible=disponible-?cnt 
                                         where auto_producto=?ap and auto_deposito=?ad";
                         comando2 = new MySqlCommand(sql0, cn, tr);
+                        comando1.CommandTimeout = 0;
                         foreach (var mv in listMv)
                         {
                             comando2.Parameters.Clear();
@@ -1448,9 +1548,7 @@ namespace ProvPosOffLine
                 result.Mensaje = ex2.Message;
                 result.Result = DtoLib.Enumerados.EnumResult.isError;
             }
-
             return result;
-
         }
 
 
