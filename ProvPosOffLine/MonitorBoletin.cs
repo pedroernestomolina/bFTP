@@ -8,15 +8,13 @@ using System.Threading.Tasks;
 
 namespace ProvPosOffLine
 {
-
     public partial class Provider : IPosOffLine.IProvider
     {
-
         public DtoLib.Resultado 
-            MonitorBoletin_Actualizar(string boletin)
+            MonitorBoletin_Actualizar(string boletin, int idNegocio)
         {
             var result = new DtoLib.Resultado();
-
+            //
             try
             {
                 using (var cn = new MySqlConnection(_cnn3.ConnectionString))
@@ -26,16 +24,19 @@ namespace ProvPosOffLine
                     try
                     {
                         tr = cn.BeginTransaction();
-
+                        //
                         var p1 = new MySql.Data.MySqlClient.MySqlParameter();
                         p1.ParameterName = "boletin";
                         p1.Value = boletin;
-                        var sql1 = @"update monitor_boletin set boletin_info=@boletin where id=1";
+                        var p2 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
+                        //var sql1 = @"update monitor_boletin set boletin_info=@boletin where id=1";
+                        var sql1 = @"update monitor_boletin set boletin_info=@boletin where id=@idNegocio";
                         var comando1 = new MySqlCommand(sql1, cn, tr);
                         comando1.Parameters.Clear();
                         comando1.Parameters.Add(p1);
+                        comando1.Parameters.Add(p2);
                         var idObj = comando1.ExecuteScalar();
-
+                        //
                         tr.Commit();
                     }
                     catch (Exception ex1)
@@ -51,24 +52,27 @@ namespace ProvPosOffLine
                 result.Mensaje = e.Message;
                 result.Result = DtoLib.Enumerados.EnumResult.isError;
             }
-
+            //
             return result;
         }
         public DtoLib.ResultadoEntidad<string>
-            MonitorBoletin_Info()
+            MonitorBoletin_Info(int idNegocio)
         {
             var result = new DtoLib.ResultadoEntidad<string>();
-
+            //
             try
             {
                 using (var cn = new MySqlConnection(_cnn3.ConnectionString))
                 {
                     cn.Open();
-
                     try
                     {
-                        var sql1 = @"select boletin_info from monitor_boletin where id=1";
+                        var p1 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
+                        //var sql1 = @"select boletin_info from monitor_boletin where id=1";
+                        var sql1 = @"select boletin_info from monitor_boletin where id=@idNegocio";
                         var comando1 = new MySqlCommand(sql1, cn);
+                        comando1.Parameters.Clear();
+                        comando1.Parameters.Add(p1);
                         var idObj = comando1.ExecuteScalar();
                         if (idObj != null) 
                         {
@@ -87,11 +91,8 @@ namespace ProvPosOffLine
                 result.Mensaje = e.Message;
                 result.Result = DtoLib.Enumerados.EnumResult.isError;
             }
-
+            //
             return result;
         }
-
-
     }
-
 }
