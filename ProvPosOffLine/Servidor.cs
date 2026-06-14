@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -814,7 +814,7 @@ namespace ProvPosOffLine
 
                         var fecMovInv = DateTime.Now.Date;
                         sql0 = @"select fecha_mov_inv as fechaMovInv from gestion_ftp";
-                        comando1 = new MySqlCommand(sql0, cn);
+                        comando1 = new MySqlCommand(sql0, cn, tr);
                         var reader = comando1.ExecuteReader();
                         while (reader.Read())
                         {

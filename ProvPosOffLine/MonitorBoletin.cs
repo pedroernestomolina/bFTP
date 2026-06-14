@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,16 +25,18 @@ namespace ProvPosOffLine
                     {
                         tr = cn.BeginTransaction();
                         //
-                        var p1 = new MySql.Data.MySqlClient.MySqlParameter();
-                        p1.ParameterName = "boletin";
-                        p1.Value = boletin;
-                        var p2 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
+                        //var p1 = new MySql.Data.MySqlClient.MySqlParameter();
+                        //p1.ParameterName = "boletin";
+                        //p1.Value = boletin;
+                        //var p2 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
                         //var sql1 = @"update monitor_boletin set boletin_info=@boletin where id=1";
                         var sql1 = @"update monitor_boletin set boletin_info=@boletin where id=@idNegocio";
                         var comando1 = new MySqlCommand(sql1, cn, tr);
                         comando1.Parameters.Clear();
-                        comando1.Parameters.Add(p1);
-                        comando1.Parameters.Add(p2);
+                        comando1.Parameters.AddWithValue("@boletin",boletin);
+                        comando1.Parameters.AddWithValue("@idNegocio", idNegocio);
+                        //comando1.Parameters.Add(p1);
+                        //comando1.Parameters.Add(p2);
                         var idObj = comando1.ExecuteScalar();
                         //
                         tr.Commit();
@@ -67,12 +69,13 @@ namespace ProvPosOffLine
                     cn.Open();
                     try
                     {
-                        var p1 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
+                        //var p1 = new MySql.Data.MySqlClient.MySqlParameter("@idNegocio", idNegocio);
                         //var sql1 = @"select boletin_info from monitor_boletin where id=1";
                         var sql1 = @"select boletin_info from monitor_boletin where id=@idNegocio";
                         var comando1 = new MySqlCommand(sql1, cn);
                         comando1.Parameters.Clear();
-                        comando1.Parameters.Add(p1);
+                        comando1.Parameters.AddWithValue("@idNegocio", idNegocio);
+                        //comando1.Parameters.Add(p1);
                         var idObj = comando1.ExecuteScalar();
                         if (idObj != null) 
                         {
